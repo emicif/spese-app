@@ -7,36 +7,16 @@ import { Summary } from "./pages/summary/Summary";
 import { Settings } from "./pages/settings/Settings";
 import { Categories } from "./pages/categories/Categories";
 
-
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/spese-app">
       <div>
         <Routes>
-          <Route
-            path="/"
-            element={<Dashboard />}
-          />
-
-          <Route
-            path="/spese"
-            element={<Expenses />}
-          />
-
-          <Route
-            path="/riepilogo"
-            element={<Summary />}
-          />
-
-          <Route
-            path="/impostazioni"
-            element={<Settings />}
-          />
-
-          <Route
-            path="/categorie"
-            element={<Categories />}
-          />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/spese" element={<Expenses />} />
+          <Route path="/riepilogo" element={<Summary />} />
+          <Route path="/categorie" element={<Categories />} />
+          <Route path="/impostazioni" element={<Settings />} />
         </Routes>
 
         <BottomNavigation />
