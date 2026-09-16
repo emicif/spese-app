@@ -4,7 +4,6 @@ interface FinancialSummaryProps {
   salary: number;
   savings: number;
   expenses: number;
-  available: number;
 }
 
 function formatCurrency(value: number): string {
@@ -18,7 +17,6 @@ export function FinancialSummary({
   salary,
   savings,
   expenses,
-  available,
 }: FinancialSummaryProps) {
   return (
     <section className="financial-summary">
@@ -53,7 +51,7 @@ export function FinancialSummary({
           </strong>
 
           <span className="financial-summary-card-caption">
-            Entrate del mese
+            Entrate del periodo
           </span>
         </article>
 
@@ -73,7 +71,7 @@ export function FinancialSummary({
           </strong>
 
           <span className="financial-summary-card-caption">
-            Uscite del mese
+            Uscite del periodo
           </span>
         </article>
 
@@ -94,26 +92,6 @@ export function FinancialSummary({
 
           <span className="financial-summary-card-caption">
             Somma accantonata
-          </span>
-        </article>
-
-        <article className="financial-summary-card available">
-          <div className="financial-summary-card-top">
-            <span className="financial-summary-card-icon">
-              💳
-            </span>
-
-            <span className="financial-summary-card-label">
-              Disponibile
-            </span>
-          </div>
-
-          <strong>
-            {formatCurrency(available)}
-          </strong>
-
-          <span className="financial-summary-card-caption">
-            Ancora utilizzabile
           </span>
         </article>
       </div>

@@ -3,13 +3,20 @@ import { useCallback, useEffect, useState } from "react";
 import "./Dashboard.css";
 
 import { FinancialSummary } from "../../components/dashboard/FinancialSummary/FinancialSummary";
-import { MonthSelector } from "../../components/dashboard/MonthSelector/MonthSelector";
 import { SalaryForm } from "../../components/dashboard/SalaryForm/SalaryForm";
 import { SavingForm } from "../../components/dashboard/SavingForm/SavingForm";
 
-import { getSalaryByMonth } from "../../repositories/salaryRepository";
-import { getExpensesByMonth } from "../../repositories/expenseRepository";
-import { getSavingsByMonth } from "../../repositories/savingRepository";
+import {
+  getCurrentFinancialPeriodWithSalary,
+} from "../../repositories/financialPeriodRepository";
+
+import {
+  getExpensesByPeriod,
+} from "../../repositories/expenseRepository";
+
+import {
+  getSavingsByPeriod,
+} from "../../repositories/savingRepository";
 
 import {
   calculateTotalExpenses,
@@ -17,7 +24,7 @@ import {
   calculateAvailableAmount,
 } from "../../utils/dashboardUtils";
 
-import { getCurrentMonth } from "../../utils/monthUtils";
+import type { FinancialPeriod } from "../../types/financialPeriod";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("it-IT", {
@@ -26,27 +33,48 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+function formatDate(date: string): string {
+  const [year, month, day] = date.split("-");
+
+  return `${day}/${month}/${year}`;
+}
+
 export function Dashboard() {
-  const [month, setMonth] = useState(
-    getCurrentMonth(),
-  );
+  const [period, setPeriod] =
+    useState<FinancialPeriod | undefined>();
 
   const [salary, setSalary] = useState(0);
   const [savings, setSavings] = useState(0);
   const [expenses, setExpenses] = useState(0);
 
   const loadDashboard = useCallback(async () => {
+    const current =
+      await getCurrentFinancialPeriodWithSalary();
+
+    if (!current) {
+      setPeriod(undefined);
+      setSalary(0);
+      setSavings(0);
+      setExpenses(0);
+      return;
+    }
+
+    setPeriod(current.period);
+    setSalary(current.salary.amount);
+
     const [
-      salaryRecord,
       savingsRecords,
       expenseRecords,
     ] = await Promise.all([
-      getSalaryByMonth(month),
-      getSavingsByMonth(month),
-      getExpensesByMonth(month),
+      getSavingsByPeriod(
+        current.period.startDate,
+        current.period.endDate,
+      ),
+      getExpensesByPeriod(
+        current.period.startDate,
+        current.period.endDate,
+      ),
     ]);
-
-    setSalary(salaryRecord?.amount ?? 0);
 
     setSavings(
       calculateTotalSavings(savingsRecords),
@@ -55,7 +83,7 @@ export function Dashboard() {
     setExpenses(
       calculateTotalExpenses(expenseRecords),
     );
-  }, [month]);
+  }, []);
 
   useEffect(() => {
     loadDashboard();
@@ -84,12 +112,20 @@ export function Dashboard() {
       </header>
 
       <section className="dashboard-month-card">
-        <span>Periodo</span>
+        <span>Periodo finanziario</span>
 
-        <MonthSelector
-          month={month}
-          onMonthChange={setMonth}
-        />
+        {period ? (
+          <strong>
+            Dal {formatDate(period.startDate)}
+            {period.endDate
+              ? ` al ${formatDate(period.endDate)}`
+              : " · in corso"}
+          </strong>
+        ) : (
+          <strong>
+            Nessun periodo attivo
+          </strong>
+        )}
       </section>
 
       <section className="dashboard-balance-card">
@@ -149,14 +185,17 @@ export function Dashboard() {
         salary={salary}
         savings={savings}
         expenses={expenses}
-        available={available}
       />
 
       <section className="dashboard-section">
         <div className="dashboard-section-heading">
           <div>
             <span>Gestione</span>
-            <h2>Questo mese</h2>
+            <h2>
+              {period
+                ? "Periodo corrente"
+                : "Inizia il tuo periodo"}
+            </h2>
           </div>
         </div>
 
@@ -171,38 +210,40 @@ export function Dashboard() {
                 <h3>Stipendio</h3>
 
                 <p>
-                  Imposta lo stipendio del mese
+                  {period
+                    ? "Aggiorna lo stipendio del periodo"
+                    : "Inserisci lo stipendio ricevuto oggi"}
                 </p>
               </div>
             </div>
 
             <SalaryForm
-              month={month}
               currentAmount={salary}
               onSaved={loadDashboard}
             />
           </div>
 
-          <div className="dashboard-form-card">
-            <div className="dashboard-form-header">
-              <div className="dashboard-form-icon saving-icon">
-                🏦
+          {period && (
+            <div className="dashboard-form-card">
+              <div className="dashboard-form-header">
+                <div className="dashboard-form-icon saving-icon">
+                  🏦
+                </div>
+
+                <div>
+                  <h3>Risparmio</h3>
+
+                  <p>
+                    Metti da parte una somma
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <h3>Risparmio</h3>
-
-                <p>
-                  Metti da parte una somma
-                </p>
-              </div>
+              <SavingForm
+                onSaved={loadDashboard}
+              />
             </div>
-
-            <SavingForm
-              month={month}
-              onSaved={loadDashboard}
-            />
-          </div>
+          )}
         </div>
       </section>
 
@@ -217,8 +258,9 @@ export function Dashboard() {
           </strong>
 
           <p>
-            Controlla le spese e scopri quanto
-            puoi ancora utilizzare questo mese.
+            Le spese e i risparmi vengono conteggiati
+            dal giorno dello stipendio fino al
+            prossimo stipendio.
           </p>
         </div>
       </section>

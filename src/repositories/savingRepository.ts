@@ -46,3 +46,26 @@ export async function updateSaving(
 export async function deleteSaving(id: number): Promise<void> {
   await db.savings.delete(id);
 }
+
+
+export async function getSavingsByPeriod(
+  startDate: string,
+  endDate?: string,
+): Promise<Saving[]> {
+  if (!endDate) {
+    return db.savings
+      .where("date")
+      .aboveOrEqual(startDate)
+      .sortBy("date");
+  }
+
+  return db.savings
+    .where("date")
+    .between(
+      startDate,
+      endDate,
+      true,
+      false,
+    )
+    .sortBy("date");
+}

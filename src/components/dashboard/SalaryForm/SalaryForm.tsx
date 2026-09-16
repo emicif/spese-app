@@ -2,19 +2,21 @@ import { useState } from "react";
 
 import "./SalaryForm.css";
 
+import { saveSalary } from "../../../repositories/salaryRepository";
+
 interface SalaryFormProps {
-  month: string;
   currentAmount: number;
   onSaved: () => void;
 }
 
 export function SalaryForm({
-  month,
   currentAmount,
   onSaved,
 }: SalaryFormProps) {
   const [amount, setAmount] = useState(
-    currentAmount > 0 ? String(currentAmount) : "",
+    currentAmount > 0
+      ? String(currentAmount)
+      : "",
   );
 
   const [isSaving, setIsSaving] = useState(false);
@@ -38,11 +40,18 @@ export function SalaryForm({
     setIsSaving(true);
 
     try {
-      const { saveSalary } = await import(
-        "../../../repositories/salaryRepository"
-      );
+      const today = new Date();
 
-      await saveSalary(month, numericAmount);
+      const date = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0"),
+      ].join("-");
+
+      await saveSalary(
+        date,
+        numericAmount,
+      );
 
       onSaved();
     } finally {
@@ -56,7 +65,9 @@ export function SalaryForm({
       onSubmit={handleSubmit}
     >
       <div className="salary-input-wrapper">
-        <span className="salary-currency">€</span>
+        <span className="salary-currency">
+          €
+        </span>
 
         <input
           id="salary"
@@ -67,7 +78,7 @@ export function SalaryForm({
           onChange={(event) =>
             setAmount(event.target.value)
           }
-          aria-label={`Stipendio di ${month}`}
+          aria-label="Importo stipendio"
         />
       </div>
 

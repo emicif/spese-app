@@ -52,3 +52,28 @@ export async function updateExpense(
 export async function deleteExpense(id: number): Promise<void> {
   await db.expenses.delete(id);
 }
+
+
+export async function getExpensesByPeriod(
+  startDate: string,
+  endDate?: string,
+): Promise<Expense[]> {
+  if (!endDate) {
+    return db.expenses
+      .where("date")
+      .aboveOrEqual(startDate)
+      .reverse()
+      .sortBy("date");
+  }
+
+  return db.expenses
+    .where("date")
+    .between(
+      startDate,
+      endDate,
+      true,
+      false,
+    )
+    .reverse()
+    .sortBy("date");
+}

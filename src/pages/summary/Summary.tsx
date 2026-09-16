@@ -2,9 +2,18 @@ import { useCallback, useEffect, useState } from "react";
 
 import "./Summary.css";
 
-import { getSalaryByMonth } from "../../repositories/salaryRepository";
-import { getSavingsByMonth } from "../../repositories/savingRepository";
-import { getExpensesByMonth } from "../../repositories/expenseRepository";
+import {
+  getCurrentFinancialPeriodWithSalary,
+} from "../../repositories/financialPeriodRepository";
+
+import {
+  getSavingsByPeriod,
+} from "../../repositories/savingRepository";
+
+import {
+  getExpensesByPeriod,
+} from "../../repositories/expenseRepository";
+
 import { getCategories } from "../../repositories/categoryRepository";
 
 import {
@@ -12,15 +21,9 @@ import {
   calculateAvailableAmount,
 } from "../../utils/dashboardUtils";
 
-import {
-  getCurrentMonth,
-  formatMonth,
-  getNextMonth,
-  getPreviousMonth,
-} from "../../utils/monthUtils";
-
 import type { Expense } from "../../types/expense";
 import type { Category } from "../../types/category";
+import type { FinancialPeriod } from "../../types/financialPeriod";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("it-IT", {
@@ -29,10 +32,15 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+function formatDate(date: string): string {
+  const [year, month, day] = date.split("-");
+
+  return `${day}/${month}/${year}`;
+}
+
 export function Summary() {
-  const [month, setMonth] = useState(
-    getCurrentMonth(),
-  );
+  const [period, setPeriod] =
+    useState<FinancialPeriod | undefined>();
 
   const [salary, setSalary] = useState(0);
   const [savings, setSavings] = useState(0);
@@ -40,23 +48,49 @@ export function Summary() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   const loadSummary = useCallback(async () => {
+    const current =
+      await getCurrentFinancialPeriodWithSalary();
+
+    if (!current) {
+      setPeriod(undefined);
+      setSalary(0);
+      setSavings(0);
+      setExpenses([]);
+
+      const categoryRecords =
+        await getCategories();
+
+      setCategories(categoryRecords);
+
+      return;
+    }
+
+    setPeriod(current.period);
+    setSalary(current.salary.amount);
+
     const [
-      salaryRecord,
       savingsRecords,
       expenseRecords,
       categoryRecords,
     ] = await Promise.all([
-      getSalaryByMonth(month),
-      getSavingsByMonth(month),
-      getExpensesByMonth(month),
+      getSavingsByPeriod(
+        current.period.startDate,
+        current.period.endDate,
+      ),
+      getExpensesByPeriod(
+        current.period.startDate,
+        current.period.endDate,
+      ),
       getCategories(),
     ]);
 
-    setSalary(salaryRecord?.amount ?? 0);
-    setSavings(calculateTotalSavings(savingsRecords));
+    setSavings(
+      calculateTotalSavings(savingsRecords),
+    );
+
     setExpenses(expenseRecords);
     setCategories(categoryRecords);
-  }, [month]);
+  }, []);
 
   useEffect(() => {
     loadSummary();
@@ -75,12 +109,18 @@ export function Summary() {
 
   const expensePercentage =
     salary > 0
-      ? Math.min((totalExpenses / salary) * 100, 100)
+      ? Math.min(
+          (totalExpenses / salary) * 100,
+          100,
+        )
       : 0;
 
   const savingPercentage =
     salary > 0
-      ? Math.min((savings / salary) * 100, 100)
+      ? Math.min(
+          (savings / salary) * 100,
+          100,
+        )
       : 0;
 
   function getCategory(categoryId: number) {
@@ -127,33 +167,28 @@ export function Summary() {
 
       <section className="summary-month-card">
         <span className="summary-month-label">
-          Periodo
+          Periodo finanziario
         </span>
 
-        <div className="summary-month-selector">
-          <button
-            type="button"
-            onClick={() =>
-              setMonth(getPreviousMonth(month))
-            }
-            aria-label="Mese precedente"
-          >
-            ‹
-          </button>
-
-          <strong>{formatMonth(month)}</strong>
-
-          <button
-            type="button"
-            onClick={() =>
-              setMonth(getNextMonth(month))
-            }
-            aria-label="Mese successivo"
-          >
-            ›
-          </button>
-        </div>
+        {period ? (
+          <div className="summary-month-selector">
+            <strong>
+              {formatDate(period.startDate)}
+              {" → "}
+              {period.endDate
+                ? formatDate(period.endDate)
+                : "in corso"}
+            </strong>
+          </div>
+        ) : (
+          <div className="summary-month-selector">
+            <strong>
+              Nessun periodo attivo
+            </strong>
+          </div>
+        )}
       </section>
+
 
       <section className="summary-available-card">
         <div className="summary-available-top">
@@ -232,8 +267,8 @@ export function Summary() {
 
             {salary > 0 && (
               <small>
-                {expensePercentage.toFixed(0)}% dello
-                stipendio
+                {expensePercentage.toFixed(0)}%
+                dello stipendio
               </small>
             )}
           </div>
@@ -253,8 +288,8 @@ export function Summary() {
 
             {salary > 0 && (
               <small>
-                {savingPercentage.toFixed(0)}% dello
-                stipendio
+                {savingPercentage.toFixed(0)}%
+                dello stipendio
               </small>
             )}
           </div>
@@ -265,6 +300,7 @@ export function Summary() {
         <div className="summary-section-header">
           <div>
             <span>Distribuzione</span>
+
             <h2>Spese per categoria</h2>
           </div>
 
@@ -285,8 +321,8 @@ export function Summary() {
             <strong>Nessuna spesa</strong>
 
             <p>
-              Non ci sono spese registrate per
-              questo mese.
+              Non ci sono spese registrate
+              nel periodo corrente.
             </p>
           </div>
         ) : (
@@ -295,7 +331,8 @@ export function Summary() {
               ({ category, total }) => {
                 const percentage =
                   totalExpenses > 0
-                    ? (total / totalExpenses) * 100
+                    ? (total / totalExpenses) *
+                      100
                     : 0;
 
                 return (
@@ -345,6 +382,7 @@ export function Summary() {
         <div className="summary-section-header">
           <div>
             <span>Movimenti</span>
+
             <h2>Ultime spese</h2>
           </div>
         </div>
@@ -359,7 +397,7 @@ export function Summary() {
 
             <p>
               Non hai ancora registrato spese
-              questo mese.
+              nel periodo corrente.
             </p>
           </div>
         ) : (

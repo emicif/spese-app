@@ -5,12 +5,20 @@ import "./SavingForm.css";
 import { addSaving } from "../../../repositories/savingRepository";
 
 interface SavingFormProps {
-  month: string;
   onSaved: () => void;
 }
 
+function getTodayDate(): string {
+  const today = new Date();
+
+  return [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
 export function SavingForm({
-  month,
   onSaved,
 }: SavingFormProps) {
   const [amount, setAmount] = useState("");
@@ -36,7 +44,7 @@ export function SavingForm({
 
     try {
       await addSaving({
-        date: `${month}-01`,
+        date: getTodayDate(),
         amount: numericAmount,
       });
 

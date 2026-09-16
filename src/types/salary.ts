@@ -1,6 +1,6 @@
 export interface Salary {
   id?: number;
-  month: string; // YYYY-MM
+  date: string;
   amount: number;
   createdAt: string;
   updatedAt: string;
