@@ -1,0 +1,157 @@
+.financial-summary {
+  margin-top: 24px;
+}
+
+.financial-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.financial-summary-eyebrow {
+  display: block;
+  margin-bottom: 3px;
+  color: #71717a;
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.financial-summary-header h2 {
+  margin: 0;
+  color: #18181b;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+}
+
+.financial-summary-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #f4f4f5;
+  font-size: 19px;
+}
+
+.financial-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.financial-summary-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: white;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.045);
+}
+
+.financial-summary-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.financial-summary-card-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.financial-summary-card-label {
+  overflow: hidden;
+  color: #52525b;
+  font-size: 13px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.financial-summary-card strong {
+  display: block;
+  overflow: hidden;
+  color: #18181b;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.financial-summary-card-caption {
+  display: block;
+  margin-top: 4px;
+  color: #a1a1aa;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Stipendio */
+
+.financial-summary-card.salary {
+  border-color: #dcfce7;
+  background: #f0fdf4;
+}
+
+.financial-summary-card.salary
+  .financial-summary-card-icon {
+  background: #dcfce7;
+}
+
+/* Spese */
+
+.financial-summary-card.expense {
+  border-color: #dbeafe;
+  background: #eff6ff;
+}
+
+.financial-summary-card.expense
+  .financial-summary-card-icon {
+  background: #dbeafe;
+}
+
+/* Risparmi */
+
+.financial-summary-card.saving {
+  border-color: #fef3c7;
+  background: #fffbeb;
+}
+
+.financial-summary-card.saving
+  .financial-summary-card-icon {
+  background: #fef3c7;
+}
+
+/* Disponibile */
+
+.financial-summary-card.available {
+  border-color: #e4e4e7;
+  background: #fafafa;
+}
+
+.financial-summary-card.available
+  .financial-summary-card-icon {
+  background: #e4e4e7;
+}
+
+@media (min-width: 600px) {
+  .financial-summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

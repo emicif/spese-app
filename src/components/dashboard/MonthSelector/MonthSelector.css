@@ -1,0 +1,65 @@
+.month-selector {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #e4e4e7;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.month-selector-button {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 13px;
+  background: #f4f4f5;
+  color: #18181b;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.month-selector-button:hover {
+  background: #e4e4e7;
+}
+
+.month-selector-button:active {
+  transform: scale(0.94);
+}
+
+.month-selector-current {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.month-selector-label {
+  color: #a1a1aa;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.month-selector-current strong {
+  color: #18181b;
+  font-size: 17px;
+  font-weight: 750;
+  text-transform: capitalize;
+  letter-spacing: -0.2px;
+}

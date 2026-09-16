@@ -1,0 +1,160 @@
+.settings-page {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 18px 110px;
+  box-sizing: border-box;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.settings-eyebrow {
+  margin: 0 0 4px;
+  color: #71717a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.settings-header h1 {
+  margin: 0;
+  color: #18181b;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.8px;
+}
+
+.settings-header-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 16px;
+  background: #f4f4f5;
+  font-size: 22px;
+}
+
+.settings-section {
+  margin-top: 8px;
+}
+
+.settings-section-heading {
+  margin-bottom: 12px;
+}
+
+.settings-section-heading span {
+  display: block;
+  margin-bottom: 3px;
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.settings-section-heading h2 {
+  margin: 0;
+  color: #27272a;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid #e4e4e7;
+  border-radius: 18px;
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(24, 24, 27, 0.04);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.settings-item:hover {
+  border-color: #d4d4d8;
+  box-shadow: 0 7px 20px rgba(24, 24, 27, 0.07);
+  transform: translateY(-1px);
+}
+
+.settings-item:active {
+  transform: scale(0.99);
+}
+
+.settings-item-icon {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: #eff6ff;
+  font-size: 21px;
+}
+
+.settings-item-content {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-item-content strong {
+  color: #18181b;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.settings-item-content span {
+  color: #71717a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.settings-item-arrow {
+  color: #a1a1aa;
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .settings-page {
+    padding: 20px 16px 105px;
+  }
+
+  .settings-header h1 {
+    font-size: 29px;
+  }
+
+  .settings-item {
+    padding: 14px;
+  }
+
+  .settings-item-icon {
+    width: 42px;
+    height: 42px;
+  }
+}
