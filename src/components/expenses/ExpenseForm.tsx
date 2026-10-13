@@ -13,13 +13,11 @@ import type { Category } from "../../types/category";
 import type { Expense } from "../../types/expense";
 
 interface ExpenseFormProps {
-  month: string;
   expense?: Expense;
   onSaved: () => void;
 }
 
 export function ExpenseForm({
-  month,
   expense,
   onSaved,
 }: ExpenseFormProps) {

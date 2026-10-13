@@ -184,7 +184,6 @@ export function Expenses() {
       {showForm && (
         <section className="expenses-form-card">
           <ExpenseForm
-            month={month}
             expense={editingExpense}
             onSaved={async () => {
               await loadExpenses();
