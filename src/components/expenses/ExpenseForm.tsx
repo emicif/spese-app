@@ -28,13 +28,26 @@ export function ExpenseForm({
     expense ? String(expense.amount).replace(".", ",") : "",
   );
 
-  const [date, setDate] = useState(
-    expense ? expense.date : `${month}-01`,
-  );
+  const [date, setDate] = useState(() => {
+    if (expense) {
+      return expense.date;
+    }
+
+    const today = new Date();
+
+    const year = today.getFullYear();
+    const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${currentMonth}-${day}`;
+  });
 
   const [categoryId, setCategoryId] = useState(
     expense ? String(expense.categoryId) : "",
   );
+
+  const [categorySearch, setCategorySearch] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
 
   const [description, setDescription] = useState(
     expense?.description ?? "",
@@ -45,20 +58,11 @@ export function ExpenseForm({
   useEffect(() => {
     async function loadCategories() {
       const result = await getCategories();
-
       setCategories(result);
-
-      if (
-        !expense &&
-        result.length > 0 &&
-        result[0].id !== undefined
-      ) {
-        setCategoryId(String(result[0].id));
-      }
     }
 
     loadCategories();
-  }, [expense]);
+  }, []);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -104,6 +108,16 @@ export function ExpenseForm({
 
   const isEditing = expense !== undefined;
 
+  const selectedCategory = categories.find(
+    (category) => String(category.id) === categoryId,
+  );
+
+  const filteredCategories = categories.filter((category) =>
+    category.name
+      .toLowerCase()
+      .includes(categorySearch.toLowerCase().trim()),
+  );
+
   return (
     <form
       className="expense-form"
@@ -142,30 +156,107 @@ export function ExpenseForm({
       </div>
 
       <div className="expense-form-field">
-        <label htmlFor="expense-category">
-          Categoria
-        </label>
+  <label>Categoria</label>
 
-        <select
-          id="expense-category"
-          value={categoryId}
-          onChange={(event) =>
-            setCategoryId(event.target.value)
-          }
-        >
-          {categories.map((category) => (
-            <option
-              key={category.id}
-              value={category.id}
-            >
-              {category.icon} {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
+  <div className="category-select">
+    <button
+      type="button"
+      className="category-select-trigger"
+      onClick={() =>
+        setCategoryOpen((open) => !open)
+      }
+      aria-expanded={categoryOpen}
+    >
+      <span>
+        {selectedCategory ? (
+          <>
+            <span className="category-selected-icon">
+              {selectedCategory.icon}
+            </span>
+
+            {selectedCategory.name}
+          </>
+        ) : (
+          <span className="category-placeholder">
+            Seleziona categoria
+          </span>
+        )}
+      </span>
+
+      <span
+        className={`category-chevron ${
+          categoryOpen ? "is-open" : ""
+        }`}
+        aria-hidden="true"
+      >
+        ⌄
+      </span>
+    </button>
+
+    {categoryOpen && (
+      <div className="category-dropdown">
+        <div className="category-search">
+          <span aria-hidden="true">⌕</span>
+
+          <input
+            type="search"
+            placeholder="Cerca categoria..."
+            value={categorySearch}
+            onChange={(event) =>
+              setCategorySearch(event.target.value)
+            }
+            autoFocus
+          />
+        </div>
+
+        <div className="category-options">
+            {filteredCategories.length > 0 ? (
+              filteredCategories.map((category) => {
+                const isSelected =
+                  String(category.id) === categoryId;
+
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    className={`category-option ${
+                      isSelected ? "is-selected" : ""
+                    }`}
+                    onClick={() => {
+                      setCategoryId(
+                        String(category.id),
+                      );
+                      setCategoryOpen(false);
+                      setCategorySearch("");
+                    }}
+                  >
+                    <span className="category-option-icon">
+                      {category.icon}
+                    </span>
+
+                    <span>{category.name}</span>
+
+                    {isSelected && (
+                      <span className="category-check">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })
+            ) : (
+              <p className="category-empty">
+                Nessuna categoria trovata
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
 
       <div className="expense-form-field">
-        <label htmlFor="expense-description">
+        <label htmlFor="">
           Descrizione
         </label>
 

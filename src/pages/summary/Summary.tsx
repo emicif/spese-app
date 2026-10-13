@@ -173,11 +173,10 @@ export function Summary() {
         {period ? (
           <div className="summary-month-selector">
             <strong>
-              {formatDate(period.startDate)}
-              {" → "}
+               Dal {formatDate(period.startDate)}
               {period.endDate
-                ? formatDate(period.endDate)
-                : "in corso"}
+                ? ` al ${formatDate(period.endDate)}`
+                : " · In corso"}
             </strong>
           </div>
         ) : (
@@ -346,7 +345,7 @@ export function Summary() {
                           {category.icon}
                         </span>
 
-                        <div>
+                        <div className="summary-category-text">
                           <strong>
                             {category.name}
                           </strong>
@@ -410,34 +409,40 @@ export function Summary() {
                 );
 
                 return (
-                  <article
-                    className="summary-expense"
-                    key={expense.id}
-                  >
-                    <div className="summary-expense-left">
-                      <span className="summary-expense-icon">
-                        {category?.icon ?? "📦"}
-                      </span>
+                <article
+                className="summary-expense"
+                key={expense.id}
+              >
+                <div className="summary-expense-left">
+                  <span className="summary-expense-icon">
+                    {category?.icon ?? "📦"}
+                  </span>
 
-                      <div className="summary-expense-info">
-                        <strong>
-                          {category?.name ?? "Altro"}
-                        </strong>
-
-                        <small>
-                          {expense.description ||
-                            expense.date}
-                        </small>
-                      </div>
-                    </div>
-
-                    <strong className="summary-expense-amount">
-                      {formatCurrency(
-                        expense.amount,
-                      )}
+                  <div className="summary-expense-info">
+                    <strong>
+                      {category?.name ?? "Altro"}
                     </strong>
-                  </article>
-                );
+
+                    <div className="summary-expense-details">
+                      {expense.description && (
+                        <small className="summary-expense-note">
+                          <span>Note:</span>{" "}
+                          {expense.description}
+                        </small>
+                      )}
+
+                      <small className="summary-expense-date">
+                        {formatDate(expense.date)}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+
+                <strong className="summary-expense-amount">
+                  {formatCurrency(expense.amount)}
+                </strong>
+              </article>
+              );
               })}
           </div>
         )}

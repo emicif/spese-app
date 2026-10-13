@@ -26,6 +26,11 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+function formatDate(date: string): string {
+  const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 export function Expenses() {
   const [month, setMonth] = useState(
     getCurrentMonth(),
@@ -33,9 +38,16 @@ export function Expenses() {
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+
   const [showForm, setShowForm] = useState(false);
+
   const [editingExpense, setEditingExpense] =
     useState<Expense | undefined>(undefined);
+
+  const [expenseToDelete, setExpenseToDelete] =
+    useState<Expense | undefined>(undefined);
+
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadExpenses = useCallback(async () => {
     const [expenseRecords, categoryRecords] =
@@ -84,19 +96,26 @@ export function Expenses() {
 
     setShowForm(false);
     setEditingExpense(undefined);
+    setExpenseToDelete(undefined);
   }
 
-  async function handleDeleteExpense(id: number) {
-    const confirmed = window.confirm(
-      "Vuoi eliminare questa spesa?",
-    );
-
-    if (!confirmed) {
+  async function handleDeleteExpense() {
+    if (
+      expenseToDelete?.id === undefined ||
+      isDeleting
+    ) {
       return;
     }
 
-    await deleteExpense(id);
-    await loadExpenses();
+    setIsDeleting(true);
+
+    try {
+      await deleteExpense(expenseToDelete.id);
+      setExpenseToDelete(undefined);
+      await loadExpenses();
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   function handleEditExpense(expense: Expense) {
@@ -205,12 +224,15 @@ export function Expenses() {
 
                     {expense.description && (
                       <p className="expense-description">
+                        <span className="expense-description-label">
+                          Note:
+                        </span>{" "}
                         {expense.description}
                       </p>
                     )}
 
                     <span className="expense-date">
-                      {expense.date}
+                      {formatDate(expense.date)}
                     </span>
                   </div>
                 </div>
@@ -237,9 +259,7 @@ export function Expenses() {
                         type="button"
                         className="expense-delete-button"
                         onClick={() =>
-                          handleDeleteExpense(
-                            expense.id!,
-                          )
+                          setExpenseToDelete(expense)
                         }
                         aria-label="Elimina spesa"
                       >
@@ -253,6 +273,73 @@ export function Expenses() {
           })
         )}
       </section>
+
+      {expenseToDelete && (
+        <div
+          className="delete-modal-overlay"
+          onClick={() => {
+            if (!isDeleting) {
+              setExpenseToDelete(undefined);
+            }
+          }}
+        >
+          <div
+            className="delete-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <div
+              className="delete-modal-icon"
+              aria-hidden="true"
+            >
+              ×
+            </div>
+
+            <h2 id="delete-modal-title">
+              Eliminare questa spesa?
+            </h2>
+
+            <p>
+              Stai per eliminare una spesa di{" "}
+              <strong>
+                {formatCurrency(
+                  expenseToDelete.amount,
+                )}
+              </strong>
+              . Questa operazione non può essere
+              annullata.
+            </p>
+
+            <div className="delete-modal-actions">
+              <button
+                type="button"
+                className="delete-modal-cancel"
+                disabled={isDeleting}
+                onClick={() =>
+                  setExpenseToDelete(undefined)
+                }
+              >
+                Annulla
+              </button>
+
+              <button
+                type="button"
+                className="delete-modal-confirm"
+                disabled={isDeleting}
+                onClick={handleDeleteExpense}
+              >
+                {isDeleting
+                  ? "Eliminazione..."
+                  : "Elimina"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

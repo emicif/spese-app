@@ -46,6 +46,7 @@ export function Dashboard() {
   const [salary, setSalary] = useState(0);
   const [savings, setSavings] = useState(0);
   const [expenses, setExpenses] = useState(0);
+  const [editingSalary, setEditingSalary] = useState(false);
 
   const loadDashboard = useCallback(async () => {
     const current =
@@ -62,27 +63,20 @@ export function Dashboard() {
     setPeriod(current.period);
     setSalary(current.salary.amount);
 
-    const [
-      savingsRecords,
-      expenseRecords,
-    ] = await Promise.all([
-      getSavingsByPeriod(
-        current.period.startDate,
-        current.period.endDate,
-      ),
-      getExpensesByPeriod(
-        current.period.startDate,
-        current.period.endDate,
-      ),
-    ]);
+    const [savingsRecords, expenseRecords] =
+      await Promise.all([
+        getSavingsByPeriod(
+          current.period.startDate,
+          current.period.endDate,
+        ),
+        getExpensesByPeriod(
+          current.period.startDate,
+          current.period.endDate,
+        ),
+      ]);
 
-    setSavings(
-      calculateTotalSavings(savingsRecords),
-    );
-
-    setExpenses(
-      calculateTotalExpenses(expenseRecords),
-    );
+    setSavings(calculateTotalSavings(savingsRecords));
+    setExpenses(calculateTotalExpenses(expenseRecords));
   }, []);
 
   useEffect(() => {
@@ -95,90 +89,102 @@ export function Dashboard() {
     expenses,
   );
 
+  const isOverBudget = available < 0;
+
+  // Base della barra: lo stipendio, oppure il totale uscite se lo supera
+  const barBase = Math.max(salary, expenses + savings);
+
+  const share = (value: number) =>
+    barBase > 0
+      ? (Math.max(value, 0) / barBase) * 100
+      : 0;
+
+  const availablePercent =
+    salary > 0
+      ? Math.round(Math.max((available / salary) * 100, 0))
+      : 0;
+
   return (
     <main className="dashboard-page">
       <header className="dashboard-header">
-        <div>
-          <p className="dashboard-eyebrow">
-            Le mie finanze
-          </p>
+        <h1>Le mie finanze</h1>
 
-          <h1>Dashboard</h1>
-        </div>
+        <p className="dashboard-period">
+          {period ? (
+            <>
+              {!period.endDate && (
+                <span
+                  className="dashboard-period-dot"
+                  aria-hidden="true"
+                />
+              )}
 
-        <div className="dashboard-wallet-icon">
-          💳
-        </div>
+              {period.endDate
+                ? `Dal ${formatDate(period.startDate)} al ${formatDate(period.endDate)}`
+                : `Dal ${formatDate(period.startDate)}, in corso`}
+            </>
+          ) : (
+            "Nessun periodo attivo"
+          )}
+        </p>
       </header>
 
-      <section className="dashboard-month-card">
-        <span>Periodo finanziario</span>
-
-        {period ? (
-          <strong>
-            Dal {formatDate(period.startDate)}
-            {period.endDate
-              ? ` al ${formatDate(period.endDate)}`
-              : " · in corso"}
-          </strong>
-        ) : (
-          <strong>
-            Nessun periodo attivo
-          </strong>
-        )}
-      </section>
-
-      <section className="dashboard-balance-card">
-        <div className="dashboard-balance-top">
-          <div>
-            <span className="dashboard-balance-label">
-              Disponibile
-            </span>
-
-            <span className="dashboard-balance-caption">
-              Dopo spese e risparmi
-            </span>
-          </div>
-
-          <span className="dashboard-balance-icon">
-            €
+      <section
+        className="dashboard-hero"
+        aria-label="Importo disponibile"
+      >
+        <div className="dashboard-hero-top">
+          <span className="dashboard-hero-label">
+            Disponibile
           </span>
+
+          {salary > 0 && (
+            <span className="dashboard-hero-pill">
+              {availablePercent}% dello stipendio
+            </span>
+          )}
         </div>
 
-        <strong className="dashboard-balance-value">
+        <strong
+          className={
+            isOverBudget
+              ? "dashboard-hero-value is-negative"
+              : "dashboard-hero-value"
+          }
+        >
           {formatCurrency(available)}
         </strong>
 
-        <div className="dashboard-balance-line">
-          <div
-            className="dashboard-balance-progress"
-            style={{
-              width:
-                salary > 0
-                  ? `${Math.min(
-                      Math.max(
-                        (available / salary) * 100,
-                        0,
-                      ),
-                      100,
-                    )}%`
-                  : "0%",
-            }}
+        <p className="dashboard-hero-caption">
+          {salary > 0
+            ? "Dopo spese e risparmi"
+            : "Inserisci lo stipendio per iniziare"}
+        </p>
+
+        <div
+          className="dashboard-split"
+          role="img"
+          aria-label={`Ripartizione dello stipendio: ${formatCurrency(expenses)} di spese, ${formatCurrency(savings)} di risparmi, ${formatCurrency(Math.max(available, 0))} disponibili`}
+        >
+          <span
+            className="dashboard-split-segment expense"
+            style={{ width: `${share(expenses)}%` }}
+          />
+          <span
+            className="dashboard-split-segment saving"
+            style={{ width: `${share(savings)}%` }}
+          />
+          <span
+            className="dashboard-split-segment available"
+            style={{ width: `${share(available)}%` }}
           />
         </div>
 
-        <div className="dashboard-balance-footer">
-          <span>
-            {salary > 0
-              ? `${Math.round(
-                  Math.max(
-                    (available / salary) * 100,
-                    0,
-                  ),
-                )}% dello stipendio disponibile`
-              : "Inserisci lo stipendio per iniziare"}
-          </span>
-        </div>
+        <ul className="dashboard-legend">
+          <li className="expense">Spese</li>
+          <li className="saving">Risparmi</li>
+          <li className="available">Disponibile</li>
+        </ul>
       </section>
 
       <FinancialSummary
@@ -188,82 +194,84 @@ export function Dashboard() {
       />
 
       <section className="dashboard-section">
-        <div className="dashboard-section-heading">
-          <div>
-            <span>Gestione</span>
-            <h2>
-              {period
-                ? "Periodo corrente"
-                : "Inizia il tuo periodo"}
-            </h2>
+        {period && (
+          <div className="dashboard-section-heading">
+            <h2>Gestisci il periodo</h2>
           </div>
-        </div>
+        )}
 
         <div className="dashboard-forms">
-          <div className="dashboard-form-card">
-            <div className="dashboard-form-header">
-              <div className="dashboard-form-icon salary-icon">
-                💰
+          {period ? (
+            <>
+              <div className="dashboard-salary-row">
+                <div className="dashboard-salary-info">
+                  <span>Stipendio del periodo</span>
+                  <strong>{formatCurrency(salary)}</strong>
+                </div>
+
+                <button
+                  type="button"
+                  className="dashboard-link-button"
+                  onClick={() =>
+                    setEditingSalary((open) => !open)
+                  }
+                >
+                  {editingSalary ? "Annulla" : "Modifica"}
+                </button>
               </div>
 
-              <div>
-                <h3>Stipendio</h3>
+              {editingSalary && (
+                <div className="dashboard-form-card">
+                  <div className="dashboard-form-header">
+                    <h3>Aggiorna lo stipendio</h3>
+                  </div>
+
+                  <SalaryForm
+                    currentAmount={salary}
+                    onSaved={() => {
+                      setEditingSalary(false);
+                      loadDashboard();
+                    }}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="dashboard-form-card dashboard-welcome">
+              <div className="dashboard-form-header">
+                <h3>Registra il tuo stipendio</h3>
 
                 <p>
-                  {period
-                    ? "Aggiorna lo stipendio del periodo"
-                    : "Inserisci lo stipendio ricevuto oggi"}
+                  Da qui parte il periodo: spese e risparmi
+                  si contano fino al prossimo stipendio.
                 </p>
               </div>
-            </div>
 
-            <SalaryForm
-              currentAmount={salary}
-              onSaved={loadDashboard}
-            />
-          </div>
+              <SalaryForm
+                currentAmount={salary}
+                onSaved={loadDashboard}
+              />
+            </div>
+          )}
 
           {period && (
             <div className="dashboard-form-card">
               <div className="dashboard-form-header">
-                <div className="dashboard-form-icon saving-icon">
-                  🏦
-                </div>
+                <h3>Risparmio</h3>
 
-                <div>
-                  <h3>Risparmio</h3>
-
-                  <p>
-                    Metti da parte una somma
-                  </p>
-                </div>
+                <p>Metti da parte una somma</p>
               </div>
 
-              <SavingForm
-                onSaved={loadDashboard}
-              />
+              <SavingForm onSaved={loadDashboard} />
             </div>
           )}
         </div>
       </section>
 
-      <section className="dashboard-summary-box">
-        <div className="dashboard-summary-icon">
-          ✨
-        </div>
-
-        <div>
-          <strong>
-            Tieni sotto controllo le tue finanze
-          </strong>
-
-          <p>
-            Le spese e i risparmi vengono conteggiati
-            dal giorno dello stipendio fino al
-            prossimo stipendio.
-          </p>
-        </div>
-      </section>
+      <p className="dashboard-note">
+        Spese e risparmi vengono conteggiati dal giorno
+        dello stipendio fino al prossimo stipendio.
+      </p>
     </main>
   );
 }

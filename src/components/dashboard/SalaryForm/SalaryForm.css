@@ -19,26 +19,60 @@
   pointer-events: none;
 }
 
-.salary-input-wrapper input {
+.salary-input-wrapper {
+  display: flex;
+  align-items: center;
+
   width: 100%;
-  box-sizing: border-box;
   min-height: 50px;
-  padding: 0 15px 0 36px;
-  border: 1px solid #bbf7d0;
+
+  padding: 0 14px;
+
+  border: 1px solid #e1e4e8;
   border-radius: 14px;
-  outline: none;
-  background: #f0fdf4;
-  color: #18181b;
-  font-size: 17px;
-  font-weight: 650;
+
+  background: #f7f8fa;
+
   transition:
     border-color 0.15s ease,
     background 0.15s ease,
     box-shadow 0.15s ease;
 }
 
+.salary-input-wrapper:focus-within {
+  border-color: #9cacf6;
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(49, 87, 225, 0.08);
+}
+
+.salary-currency {
+  margin-right: 10px;
+
+  color: #777c86;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.salary-input-wrapper input {
+  width: 100%;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #111318;
+
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+}
+
 .salary-input-wrapper input::placeholder {
-  color: #a1a1aa;
+  color: #a4a8b0;
   font-weight: 500;
 }
 
@@ -48,19 +82,25 @@
   box-shadow:
     0 0 0 3px rgba(34, 197, 94, 0.12);
 }
-
 .salary-submit-button {
   width: 100%;
-  min-height: 48px;
+  min-height: 50px;
+
   border: 0;
   border-radius: 14px;
-  background: #16a34a;
-  color: white;
+
+  background: #111318;
+  color: #ffffff;
+
   font-size: 14px;
   font-weight: 700;
+  letter-spacing: -0.01em;
+
   cursor: pointer;
+
   box-shadow:
-    0 5px 12px rgba(22, 163, 74, 0.18);
+    0 4px 12px rgba(17, 19, 24, 0.12);
+
   transition:
     background 0.15s ease,
     transform 0.15s ease,
@@ -69,19 +109,24 @@
 }
 
 .salary-submit-button:hover {
-  background: #15803d;
+  background: #24272e;
+
   box-shadow:
-    0 7px 16px rgba(22, 163, 74, 0.24);
+    0 6px 16px rgba(17, 19, 24, 0.16);
 }
 
 .salary-submit-button:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
+
+  background: #0a0b0e;
+
   box-shadow:
-    0 3px 8px rgba(22, 163, 74, 0.18);
+    0 2px 8px rgba(17, 19, 24, 0.12);
 }
 
 .salary-submit-button:disabled {
-  opacity: 0.55;
+  background: #a7aab0;
   cursor: not-allowed;
+  opacity: 0.65;
   box-shadow: none;
 }

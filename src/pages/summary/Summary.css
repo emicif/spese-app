@@ -75,51 +75,18 @@
 }
 
 .summary-month-selector {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
-  align-items: center;
-  gap: 8px;
-}
-
-.summary-month-selector button {
-  width: 42px;
-  height: 42px;
-
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  border: 0;
-  border-radius: 13px;
-
-  background: #f4f4f5;
-  color: #18181b;
-
-  font-size: 25px;
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
-}
-
-.summary-month-selector button:hover {
-  background: #e4e4e7;
-}
-
-.summary-month-selector button:active {
-  transform: scale(0.94);
 }
 
 .summary-month-selector strong {
-  min-width: 0;
+  color: #111318;
 
-  text-align: center;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.4;
 
-  font-size: 17px;
-  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* =========================
@@ -436,12 +403,12 @@
 
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 7px;
 }
 
 .summary-category-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
 
   display: flex;
   align-items: center;
@@ -460,17 +427,22 @@
 
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 0;
 }
 
 .summary-category-name strong {
   display: block;
 
+  margin: 0;
+  padding: 0;
+
   overflow: hidden;
 
   color: #18181b;
+
   font-size: 14px;
-  line-height: 1.25;
+  font-weight: 650;
+  line-height: 1.15;
 
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -479,8 +451,13 @@
 .summary-category-name small {
   display: block;
 
+  margin: 1px 0 0;
+  padding: 0;
+
   color: #a1a1aa;
+
   font-size: 11px;
+  line-height: 1.1;
 }
 
 .summary-category-total {
@@ -551,12 +528,12 @@
 
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 7px;
 }
 
 .summary-expense-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
 
   display: flex;
   align-items: center;
@@ -615,6 +592,82 @@
   white-space: nowrap;
 }
 
+.summary-expense-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  min-width: 0;
+}
+
+.summary-expense-note,
+.summary-expense-date {
+  display: block;
+
+  overflow: hidden;
+
+  font-size: 11px;
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-expense-note {
+  color: #777c86;
+}
+
+.summary-expense-note span {
+  font-weight: 600;
+}
+
+.summary-expense-date {
+  color: #a4a8b0;
+}
+
+
+/* Allineamento testo ultime spese */
+
+.summary-expense-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  min-width: 0;
+
+  gap: 0;
+}
+
+.summary-expense-info > strong {
+  margin: 0;
+  padding: 0;
+
+  text-align: left;
+}
+
+.summary-expense-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+
+  gap: 0;
+}
+
+.summary-expense-note,
+.summary-expense-date {
+  margin: 0;
+  padding: 0;
+
+  text-align: left;
+  text-indent: 0;
+}
+
 /* =========================
    TABLET / DESKTOP
 ========================= */
@@ -639,4 +692,29 @@
   .summary-overview-card > div:last-child {
     width: 100%;
   }
+}
+
+
+.summary-category-text {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+
+  gap: 6px !important;
+
+  min-width: 0;
+}
+
+.summary-category-text strong {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  line-height: 1.2 !important;
+}
+
+.summary-category-text small {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  line-height: 1.2 !important;
 }
